@@ -17,12 +17,12 @@ return new class extends Migration
             $table->string('slug',500);
             $table->text('description')->nullable();
             $table->text('content')->nullable();
-            $table->string('iamge')->nullable();
-            $table->enum('posted',['yes','not'])->nullable('not');            
+            $table->string('image')->nullable();
+            $table->enum('posted',['yes','not'])->nullable('not');
             $table->timestamps();
 
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            
+
         });
     }
 
