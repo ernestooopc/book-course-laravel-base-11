@@ -17,6 +17,11 @@ class PostController extends Controller
      */
     public function index()
     {
+        //session()->forget('key');
+        // session(['key'=>'value']);
+        // session(['key2'=>'value2']);
+
+
         $posts = Post::paginate(2);
         return view('dashboard.post.index', compact('posts'));
 
@@ -43,7 +48,7 @@ class PostController extends Controller
     {
 
         Post::create($request->validated());
-        return to_route('post.index');
+        return to_route('post.index')->with('status','Post created');
 
     }
 
@@ -80,7 +85,7 @@ class PostController extends Controller
         if(isset($data['image'])){
             $data['image'] = $filename = time().'.'.$data['image']->extension();
 
-            $request->image->move(public_path('uploads/posts'),$filename);
+            $request->image->move(public_path('uploads/posts'),$filename)->with('status','Post updated');
 
         }
 
@@ -97,7 +102,7 @@ class PostController extends Controller
     {
         //
         $post->delete();
-        return to_route('post.index');
+        return to_route('post.index')->with('status','Post delete');
 
     }
 }
