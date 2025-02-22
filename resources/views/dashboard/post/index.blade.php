@@ -2,23 +2,23 @@
 
 @section('content')
 
-    <a href="{{route('post.create')}}" target="blank">Create</a>
+    <a class="btn btn-primary my-3" href="{{route('post.create')}}" target="blank">Create</a>
 
-    <table>
+    <table class="table-auto w-full border-collapse border border-gray-300">
         <thead>
             <tr>
-                <td>Id</td>
-                <td>Title</td>
-                <td>Posted</td>
-                <td>Category</td>
-                <td>Options</td>
+                <th class="border border-gray-300 px-4 py-2">Id</th>
+                <th class="border border-gray-300 px-4 py-2">Title</th>
+                <th class="border border-gray-300 px-4 py-2">Posted</th>
+                <th class="border border-gray-300 px-4 py-2">Category</th>
+                <th class="border border-gray-300 px-4 py-2">Options</th>
             </tr>
 
         </thead>
         <tbody>
 
             @foreach ($posts as $p)
-            <tr>
+            <tr class="text-center">
                 <td>
                     {{$p->id}}
                 </td>
@@ -34,12 +34,12 @@
                     {{ $p->category->title}}
                 </td>
                 <td>
-                    <a href="{{route('post.edit',$p->id)}}">Edit</a>
-                    <a href="{{route('post.show',$p->id)}}">Show</a>
+                    <a class="btn btn-success mt-2" href="{{route('post.edit',$p->id)}}">Edit</a>
+                    <a class="btn btn-success mt-2" href="{{route('post.show',$p->id)}}">Show</a>
                     <form action="{{route('post.destroy', $p)}}" method="POST">
                         @method('DELETE')
                         @csrf
-                        <button type="submit">Delete</button>
+                        <button class="btn btn-danger mt-2" type="submit">Delete</button>
                     </form>
 
                 </td>
@@ -52,6 +52,8 @@
 
         </tbody>
     </table>
+
+    <div class="mt-4"></div>
 
 
     {{$posts -> links()}}

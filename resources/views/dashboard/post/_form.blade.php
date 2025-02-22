@@ -1,16 +1,16 @@
 @csrf
 
         <label for="">Title</label>
-        <input type="text" name="title" value="{{$post->title}}">
+        <input class="form-control" type="text" name="title" value="{{$post->title}}">
 
         <label for="">Slug</label>
-        <input type="text" name="slug" value="{{$post->slug}}">
+        <input class="form-control" type="text" name="slug" value="{{$post->slug}}">
 
         <label for="">Content</label>
-        <textarea name="content" >{{$post->content}}</textarea>
+        <textarea class="form-control" name="content" >{{$post->content}}</textarea>
 
         <label for="">Category</label>
-        <select name="category_id" id="">
+        <select class="form-control" name="category_id" id="">
 
             @foreach ($categories as $title => $id)
                 <option {{$post->category_id == $id ? 'selected' : ''}} value="{{$id}}">{{$title}}</option>
@@ -19,18 +19,18 @@
         </select>
 
         <label for="">Description</label>
-        <textarea name="description" >{{$post->description}}</textarea>
+        <textarea class="form-control"name="description" >{{$post->description}}</textarea>
 
         <label for="">Posted</label>
-        <select name="posted">
+        <select class="form-control" name="posted">
             <option {{$post->posted == 'not' ? 'selected' : ''}} value="not">NOT</option>
             <option {{$post->posted == 'yes' ? 'selected' : ''}} value="yes">YES</option>
         </select>
 
         @if (isset($task) && $task == 'edit')
             <label for="">Image</label>
-            <input type="file" name="image">
+            <input class="form-control" type="file" name="image">
         @endif
 
 
-        <button type="submit">send</button>
+        <button class="btn btn-success mt-4" type="submit">send</button>
