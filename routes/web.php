@@ -7,8 +7,10 @@ use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Blog\BlogController;
 
 use App\Http\Middleware\UserAccessDashboardMiddleware;
-Route::get('/', function () {
-    return view('welcome');
+
+
+Route::get('/vue', function () {
+    return view('vue');
 });
 
 

@@ -14,6 +14,7 @@ Route::get('category/all', [CategoryController::class,'all']);
 Route::resource('category', CategoryController::class)->except(['create','edit']);
 
 Route::get('post/all', [PostController::class,'all']);
+Route::get('post', [PostController::class,'index']);
 
 Route::resource('post', PostController::class)->except(['create','edit']);
 

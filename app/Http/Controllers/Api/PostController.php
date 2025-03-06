@@ -11,16 +11,21 @@ class PostController extends Controller
 {
     public function all()
     {
-        return response()->json(Post::get());
+        return response()->json(Post::with('category')->get());
+    }
+
+
+    public function index(){
+        return response()->json(Post::with('category')->paginate(2));
 
     }
 
 
-    public function store(Request $request)
-    {
-        return responde()->json(Post::create($request->validated()));
+    public function store(StoreRequest $request)
+{
+    return response()->json(Post::create($request->validated()));
+}
 
-    }
 
     public function show(Post $post)
     {
