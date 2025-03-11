@@ -9,6 +9,8 @@
     @vite(['resources\js\vue\main.js'])
 </head>
 <body>
+    <div class="container mx-auto">
     <div id="app"></div>
+    </div>
 </body>
 </html>

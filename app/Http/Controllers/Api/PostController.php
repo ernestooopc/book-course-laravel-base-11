@@ -33,16 +33,43 @@ class PostController extends Controller
 
     }
 
-    public function update(Request $request, Post $post)
-    {
-        $post->update($request->validated());
+    public function slug(string $slug){
+        $post = Post::where('slug', $slug)->firstOrFail();
         return response()->json($post);
     }
+
+
+    public function update(Request $request, Post $post)
+{
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'posted' => 'required|string',
+        'description' => 'nullable|string',
+        'slug' => 'required|string|unique:posts,slug,' . $post->id,
+        'category_id' => 'required|integer',
+    ]);
+
+    try {
+        $post->update($data);
+        return response()->json(['message' => 'Post actualizado'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
     public function destroy(Post $post)
     {
         //
         $post->delete();
         return response()->json('Post Eliminada');
+    }
+
+    function upload(Request $request, Post $post){
+        $data['image'] = $filename = time() . '.'. $request->image->extension();
+        $request->image->move(public_path('image'), $filename);
+        $post->update($data);
+        return response()->json($post);
     }
 }

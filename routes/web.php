@@ -9,10 +9,9 @@ use App\Http\Controllers\Blog\BlogController;
 use App\Http\Middleware\UserAccessDashboardMiddleware;
 
 
-Route::get('/vue', function () {
+Route::get('/vue/{n1?}/{n2?}/{n3?}', function () {
     return view('vue');
 });
-
 
 
 Route::middleware('auth')->group(function () {

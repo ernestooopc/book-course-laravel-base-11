@@ -1,7 +1,24 @@
 <template>
-    <div>
-        <h1>Post List</h1>
-        <o-button label="Primary" variant="primary">Click Me</o-button>
+
+    <!-- <router-link :to="{name:'save'}">Create</router-link> -->
+
+    <o-modal v-model:active="confirmDeleteAction">
+        <div class="p-4">
+        <p>Seguro que quieres eliminar el registro?</p>
+        </div>
+        <div class="flex flex-row-reverse gap-2 bg-gray-100 p-3">
+            <o-button variant="danger" @click="deletePost">Delete</o-button>
+            <o-button variant="info" @click="confirmDeleteAction=false">Cancelar</o-button>
+
+        </div>
+
+    </o-modal>
+
+
+    <h1 class="text-4xl mb-3">Post List</h1>
+    <div class="mb-5"></div>
+
+    <o-button label="Primary" variant="primary" iconLeft="plus" @click="$router.push({name: 'save'})">Create</o-button>
 
         <o-table :data="posts.data" :loading="isLoading">
             <o-table-column file="id" label="ID" v-slot="p">
@@ -13,9 +30,16 @@
             <o-table-column file="posted" label="posted" v-slot="p">
                 {{ p.row.posted }}
             </o-table-column>
+
             <o-table-column file="category_id" label="Category" v-slot="p">
                 {{ p.row.category.title }}
             </o-table-column>
+
+            <o-table-column file="category_id" label="Actions" v-slot="p">
+                <o-button class="mr-3" variant="warning"><router-link :to="{name:'save', params:{'slug':p.row.slug}}">Edit</router-link></o-button>
+                <o-button iconLeft="delete" variant="danger" size="small" rounded @click="deletePostRow= p; confirmDeleteAction=true">Delete</o-button>
+            </o-table-column>
+
         </o-table>
 
         <o-pagination
@@ -30,7 +54,6 @@
             :rounded="true"
             :per-page="posts.per_page"
         />
-    </div>
 </template>
 
 <script>
@@ -40,6 +63,8 @@ export default {
             posts: [],
             isLoading: true,
             currentPage: 1,
+            confirmDeleteAction:false,
+            deletePostRow: ''
         };
     },
 
@@ -75,6 +100,23 @@ export default {
                     this.isLoading = false;
                 });
         },
+        deletePost(){
+            this.confirmDeleteAction = false
+
+
+            this.$oruga.notification.open({
+                message: 'Delete Success',
+                position: 'bottom-right',
+                variant:'danger',
+                duration: 4000,
+                //closable:true
+
+
+            })
+            this.$axios.delete('/api/post/'+this.deletePostRow.row.id)
+            this.posts.data.splice(this.deletePostRow.index,1)
+
+        }
     },
 };
 </script>
