@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use Storage;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Requests\Post\StoreRequest;
-
 class PostController extends Controller
 {
     public function all()
@@ -67,6 +67,12 @@ class PostController extends Controller
     }
 
     function upload(Request $request, Post $post){
+        $request->validate([
+            'image' => 'required|mimes:png,jpg,jpeg,gif|max:10240'
+        ]);
+
+        Storage::disk('public_upload')->delete("image/".$post->image);
+
         $data['image'] = $filename = time() . '.'. $request->image->extension();
         $request->image->move(public_path('image'), $filename);
         $post->update($data);

@@ -82,7 +82,7 @@ export default {
             console.log(this.currentPage)
             this.isLoading = true;
             this.$axios
-                .get("/api/post?page=" + this.currentPage)
+                .get(this.$root.urls.postPaginate+"?page=" + this.currentPage)
                 .then((res) => {
                     console.log("Respuesta completa de la API:", res.data);
                     if (Array.isArray(res.data.data)) {
@@ -113,7 +113,7 @@ export default {
 
 
             })
-            this.$axios.delete('/api/post/'+this.deletePostRow.row.id)
+            this.$axios.delete(this.$root.urls.postDelete+this.deletePostRow.row.id)
             this.posts.data.splice(this.deletePostRow.index,1)
 
         }

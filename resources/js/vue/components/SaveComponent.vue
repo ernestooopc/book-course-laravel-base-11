@@ -1,18 +1,18 @@
 <template>
-
-    <h1 v-if="post">Update Post <span class="font-bold">{{post.title}}</span></h1>
+    <h1 v-if="post">
+        Update Post <span class="font-bold">{{ post.title }}</span>
+    </h1>
     <h1 v-else="post">Create Post</h1>
-
 
     <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
-        <o-field
-            label="Title"
-            :variant="errors.title ? 'danger' : 'primary'"
-            :message="errors.title"
-        >
-        <o-input v-model="form.title"> </o-input>
-        </o-field>
+            <o-field
+                label="Title"
+                :variant="errors.title ? 'danger' : 'primary'"
+                :message="errors.title"
+            >
+                <o-input v-model="form.title"> </o-input>
+            </o-field>
         </div>
 
         <o-field
@@ -61,6 +61,38 @@
     </div>
     <o-button class="mt-3" variant="primary" @click="send">Send</o-button>
 
+    <div class="flex gap-2 mt-5" v-if="post">
+        <o-field
+            :message="fileError"
+            :variant:="fileError ? 'danger' : 'primary'"
+        >
+            <o-upload v-model="file">
+                <o-button tag="upload-tag" variant="primary">
+                    <o-icon icon="upload"></o-icon>
+                    <span>Click to upload</span>
+                </o-button>
+            </o-upload>
+        </o-field>
+
+        <o-button variant="primary" icon-left="upload" @click="upload">
+            Upload
+        </o-button>
+    </div>
+
+    <h3>Drag and Drop</h3>
+    <o-field :message="fileError" :variant:="fileError ? 'danger' : 'primary'">
+        <o-upload v-model="filesDaD" multiple drag-drop>
+            <section>
+                <o-icon icon="upload"></o-icon>
+                <span>Drag and Drop area</span>
+            </section>
+        </o-upload>
+    </o-field>
+
+    <span v-for="(file, index) in filesDaD" :key="index">
+        {{file.name}}
+    </span>
+
 </template>
 
 <script>
@@ -73,7 +105,7 @@ export default {
         if (this.$route.params.slug) {
             try {
                 const response = await this.$axios.get(
-                    "/api/post/slug/" + this.$route.params.slug
+                    this.$root.urls.getPostBySlug + this.$route.params.slug
                 );
                 console.log("Datos recibidos:", response.data);
                 this.post = response.data;
@@ -104,12 +136,14 @@ export default {
                 category_id: "",
                 posted: "",
             },
+            fileError: "",
+            file: null,
+            filesDaD: [],
             categories: [],
         };
     },
 
     methods: {
-
         initPost() {
             if (this.post && typeof this.post === "object") {
                 this.form.title = this.post.title || "";
@@ -123,6 +157,24 @@ export default {
             }
         },
 
+        upload() {
+            this.fileError = "";
+            const formData = new FormData();
+            formData.append("image", this.file);
+            this.$axios
+                .post(this.$root.urls.postUpload + this.post.id, formData, {
+                    headers: {
+                        "Content-type": "multipart/form-data",
+                    },
+                })
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((error) => {
+                    this.file = error.response.data.message;
+                });
+        },
+
         cleanErrorsForm() {
             this.errors.title = "";
             this.errors.content = "";
@@ -132,7 +184,7 @@ export default {
             this.errors.category_id = "";
         },
         getCategory() {
-            this.$axios.get("api/category/all").then((res) => {
+            this.$axios.get(this.$root.urls.getCategoriesAll).then((res) => {
                 this.categories = res.data;
             });
         },
@@ -142,16 +194,18 @@ export default {
             if (this.post == "") {
                 //create
                 this.$axios
-                    .post("/api/post", this.form).then((res) => {
+                    .post(this.$root.urls.postPost, this.form)
+                    .then((res) => {
                         console.log(res);
                         this.$oruga.notification.open({
-                            message: 'Record Created Success',
-                            position: 'bottom-right',
-                            variant:'success',
+                            message: "Record Created Success",
+                            position: "bottom-right",
+                            variant: "success",
                             duration: 4000,
                             //closable:true
-                        })
-                    }).catch((error) => {
+                        });
+                    })
+                    .catch((error) => {
                         if (
                             error.response &&
                             error.response.data.errors.title
@@ -188,16 +242,16 @@ export default {
             } else {
                 //update
                 this.$axios
-                    .patch("/api/post/" + this.post.id, this.form)
+                    .patch(this.$root.urls.postPatch + this.post.id, this.form)
                     .then((res) => {
                         console.log(res);
                         this.$oruga.notification.open({
-                            message: 'Record Update Success',
-                            position: 'bottom-right',
-                            variant:'warning',
+                            message: "Record Update Success",
+                            position: "bottom-right",
+                            variant: "warning",
                             duration: 4000,
                             //closable:true
-                        })
+                        });
                     })
                     .catch((error) => {
                         if (
@@ -234,6 +288,28 @@ export default {
                         }
                     });
             }
+        },
+    },
+    watch: {
+        filesDaD: {
+            handler(val) {
+                this.fileError = "";
+                const formData = new FormData()
+                formData.append("image", val[val.length-1]);
+                this.$axios
+                    .post(this.$root.urls.postUpload+this.post.id, formData, {
+                        headers: {
+                            "Content-type": "multipart/form-data",
+                        },
+                    })
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((error) => {
+                        this.file = error.response.data.message;
+                    });
+            },
+            deep: true,
         },
     },
 };
