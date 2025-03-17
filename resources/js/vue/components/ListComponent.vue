@@ -1,122 +1,111 @@
 <template>
 
-    <!-- <router-link :to="{name:'save'}">Create</router-link> -->
+    <!-- <router-link :to="{ name:'save' }">Create</router-link> -->
+    <div class='container mx-auto'>
+        <div class="mt-6 mb-2 px-6 py-4 bg-white shadow-md rounded-md">
+            <o-modal v-model:active="confirmDeleteAction">
+                <div class="p-4">
+                    <p>Are you sure you want to delete the selected record?</p>
+                </div>
 
-    <o-modal v-model:active="confirmDeleteAction">
-        <div class="p-4">
-        <p>Seguro que quieres eliminar el registro?</p>
+                <div class="flex flex-row-reverse gap-2 bg-gray-100 p-3">
+                    <o-button variant="danger" @click="deletePost">Delete</o-button>
+                    <o-button @click="confirmDeleteAction = false">Cancel</o-button>
+                </div>
+
+            </o-modal>
+
+            <h1>Post List</h1>
+
+            <o-button iconLeft="plus" @click="$router.push({ name: 'save' })">Create</o-button>
+
+            <div class="mb-5"></div>
+
+            <o-table :data="posts.data" :loading="isLoading">
+                <o-table-column field="id" label="ID" v-slot="p">
+                    {{ p.row.id }}
+                </o-table-column>
+                <o-table-column field="title" label="Title" v-slot="p">
+                    {{ p.row.title }}
+                </o-table-column>
+                <o-table-column field="posted" label="Posted" v-slot="p">
+                    {{ p.row.posted }}
+                </o-table-column>
+                <o-table-column field="category_id" label="Category" v-slot="p">
+                    {{ p.row.category.title }}
+                </o-table-column>
+                <o-table-column field="category_id" label="Actions" v-slot="p">
+
+                    <router-link class="mr-3" :to="{ name: 'save', params: { 'slug': p.row.slug } }">Edit</router-link>
+                    <o-button iconLeft="delete" variant="danger" size="small" rounded
+                        @click="deletePostRow = p; confirmDeleteAction = true">Delete</o-button>
+                </o-table-column>
+            </o-table>
+
+            <div class="mb-5"></div>
+
+            <o-pagination v-if="posts.data && posts.data.length > 0" @change="updatePage" :total="posts.total"
+                v-model:current="currentPage" :range-before="2" :range-after="2" size="small" :simple="false"
+                :rounded="true" :per-page="posts.per_page">
+            </o-pagination>
         </div>
-        <div class="flex flex-row-reverse gap-2 bg-gray-100 p-3">
-            <o-button variant="danger" @click="deletePost">Delete</o-button>
-            <o-button variant="info" @click="confirmDeleteAction=false">Cancelar</o-button>
-
-        </div>
-
-    </o-modal>
-
-
-    <h1 class="text-4xl mb-3">Post List</h1>
-    <div class="mb-5"></div>
-
-    <o-button label="Primary" variant="primary" iconLeft="plus" @click="$router.push({name: 'save'})">Create</o-button>
-
-        <o-table :data="posts.data" :loading="isLoading">
-            <o-table-column file="id" label="ID" v-slot="p">
-                {{ p.row.id }}
-            </o-table-column>
-            <o-table-column file="title" label="title" v-slot="p">
-                {{ p.row.title }}
-            </o-table-column>
-            <o-table-column file="posted" label="posted" v-slot="p">
-                {{ p.row.posted }}
-            </o-table-column>
-
-            <o-table-column file="category_id" label="Category" v-slot="p">
-                {{ p.row.category.title }}
-            </o-table-column>
-
-            <o-table-column file="category_id" label="Actions" v-slot="p">
-                <o-button class="mr-3" variant="warning"><router-link :to="{name:'save', params:{'slug':p.row.slug}}">Edit</router-link></o-button>
-                <o-button iconLeft="delete" variant="danger" size="small" rounded @click="deletePostRow= p; confirmDeleteAction=true">Delete</o-button>
-            </o-table-column>
-
-        </o-table>
-
-        <o-pagination
-            v-if="posts && posts.data && posts.data.length > 0"
-            @change="updatePage"
-            :total="posts.total"
-            v-model:current="currentPage"
-            :range-before="2"
-            :range-after="2"
-            size="small"
-            :simple="false"
-            :rounded="true"
-            :per-page="posts.per_page"
-        />
+    </div>
 </template>
-
 <script>
 export default {
+
     data() {
         return {
             posts: [],
             isLoading: true,
             currentPage: 1,
-            confirmDeleteAction:false,
+            confirmDeleteAction: false,
             deletePostRow: ''
-        };
+        }
     },
-
     mounted() {
-        console.log("Contenido de posts:", this.posts);
-        this.listPage();
+        this.listPage()
     },
     methods: {
         updatePage() {
-            setTimeout(()=> {
+            setTimeout(() => {
                 this.listPage()
-            },100);
+            }, 100);
         },
         listPage() {
-            console.log(this.currentPage)
-            this.isLoading = true;
-            this.$axios
-                .get(this.$root.urls.postPaginate+"?page=" + this.currentPage)
-                .then((res) => {
-                    console.log("Respuesta completa de la API:", res.data);
-                    if (Array.isArray(res.data.data)) {
-                        this.posts = res.data; // Guardamos todo el objeto
-                    } else {
-                        console.error(
-                            "⚠️ Error: la API no devolvió un array en 'data'.",
-                            res.data
-                        );
-                    }
-                    this.isLoading = false;
-                })
-                .catch((error) => {
-                    console.error("Error al obtener los posts:", error);
-                    this.isLoading = false;
-                });
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${this.$root.token}`
+                }
+            }
+
+            this.isLoading = true
+            this.$axios.get(this.$root.urls.postPaginate + '?page=' + this.currentPage, config).then((res) => {
+                this.posts = res.data
+                this.isLoading = false
+            })
         },
-        deletePost(){
+        deletePost() {
             this.confirmDeleteAction = false
 
-
             this.$oruga.notification.open({
-                message: 'Delete Success',
+                message: 'Delete success',
                 position: 'bottom-right',
-                variant:'danger',
+                variant: 'danger',
                 duration: 4000,
-                //closable:true
-
-
+                closable: true
             })
-            this.$axios.delete(this.$root.urls.postDelete+this.deletePostRow.row.id)
-            this.posts.data.splice(this.deletePostRow.index,1)
 
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${this.$root.token}`
+                }
+            }
+
+            this.$axios.delete(this.$root.urls.postDelete + this.deletePostRow.row.id, config)
+            this.posts.data.splice(this.deletePostRow.index, 1)
         }
-    },
-};
+    }
+}
 </script>
