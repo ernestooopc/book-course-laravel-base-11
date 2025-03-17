@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Dashboard;
+use Illuminate\Support\Facades\Cache;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
@@ -91,6 +92,7 @@ class PostController extends Controller
 
         //
 
+        Cache::forget('post_show_'.$post->id);
         $post->update($data);
         return to_route('post.index');
     }

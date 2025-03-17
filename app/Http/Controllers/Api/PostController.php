@@ -7,11 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Requests\Post\StoreRequest;
+use Illuminate\Support\Facades\Cache;
+
 class PostController extends Controller
 {
     public function all()
     {
-        return response()->json(Post::with('category')->get());
+        return response()->json(Cache::remember('posts_index', now()->addMinutes(10), function () {
+            return Post::all();
+
+
+        }));
     }
 
 

@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::group(['prefix' => 'dashboard', 'middleware' => ['auth',UserAccessDashboardMiddleware::class]],function(){
+Route::group(['prefix' => 'dashboard'],function(){
     Route::resource('post', PostController::class);
     Route::resource('category', CategoryController::class);
     Route::get('/', function () {
@@ -37,5 +37,8 @@ Route::group(['prefix' => 'blog'],function(){
 
 });
 
-
+Route::get('/', function(){
+    return ['Larevel'=>app()->version()];
+});
+ 
 require __DIR__.'/auth.php';
